@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MarchingCube : MonoBehaviour
+public class MarchingCube
 {
     public int numberOfVerticesPerLine;
     public float distanceBetweenVertex;
@@ -12,26 +12,18 @@ public class MarchingCube : MonoBehaviour
     public Material meshMaterial;
     public Vector3 centerOfMesh;
 
+    public MeshFilter meshFilter;
+    public MeshRenderer meshRenderer;
+
     int totalVertexNumber;
+    Dictionary<Vector3, Cube> cubeDictionary;
     Cube[] cubes;
-    MeshFilter meshFilter;
-    MeshRenderer meshRenderer;
 
-
-    public void Awake()
-    {
-
-    }
-
-    public void Start()
-    {
-
-    }
 
     public void InitVertices()
     {
         totalVertexNumber = numberOfVerticesPerLine * numberOfVerticesPerLine * numberOfVerticesPerLine;
-        cubes = new Cube[totalVertexNumber];
+        cubeDictionary = new Dictionary<Vector3, Cube>();
         for (int x = 0; x < numberOfVerticesPerLine; x++)
         {
             for (int y = 0; y < numberOfVerticesPerLine; y++)
@@ -39,22 +31,23 @@ public class MarchingCube : MonoBehaviour
                 for (int z = 0; z < numberOfVerticesPerLine; z++)
                 {
                     int cubeIndex = x + y * numberOfVerticesPerLine + z * numberOfVerticesPerLine * numberOfVerticesPerLine;
-                    cubes[cubeIndex] = new Cube(new Vector3(x, y, z) * distanceBetweenVertex + centerOfMesh, distanceBetweenVertex);
+                    Cube cube = new Cube(new Vector3(x, y, z) * distanceBetweenVertex + centerOfMesh, distanceBetweenVertex);
+                    cubeDictionary.Add(cube.origin, cube);
                     for (int i = 0; i < 8; i++)
                     {
-                        cubes[cubeIndex].vertexSelected[i] = CalculateVertexSelction(cubes[cubeIndex].origin + cubes[cubeIndex].offset[i]);
+                        cube.vertexSelected[i] = CalculateVertexSelction(cube.origin + cube.offset[i]);
                     }
                 }
             }
         }
     }
 
-    public void GenerateMesh()
+    public void GenerateMesh(Transform parent)
     {
         InitVertices();
 
         GameObject meshObject = new GameObject("mesh object");
-        meshObject.transform.parent = this.transform;
+        meshObject.transform.parent = parent;
         meshRenderer = meshObject.AddComponent<MeshRenderer>();
         meshFilter = meshObject.AddComponent<MeshFilter>();
         meshFilter.mesh = CalculateMesh();
@@ -123,6 +116,11 @@ public struct Cube
 
             vertexSelected[i] = false;
         }
+    }
+
+    public Vector3 GetVertexPosition(int index)
+    {
+        return origin + offset[index] * offsetDistance;
     }
 
     public Vector3[] GetMarchingCubeVertices()
