@@ -3,23 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshRenderer))]
 public class PreviewMarchingCube : MonoBehaviour
 {
-    public int marchingCubePreviewIndex = 0;
     public bool[] selectedCubeIndex;
     public MeshFilter mesh;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     private void OnDrawGizmos()
     {
