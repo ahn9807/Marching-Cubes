@@ -4,23 +4,10 @@ using UnityEngine;
 
 public class MarchingCube
 {
-    public int numberOfVerticesPerLine;
-    public float distanceBetweenVertex;
-    public float ignoreVertexValue;
-    public bool interpolate;
-    public float noiseScale;
-    public Material meshMaterial;
-    public Vector3 centerOfMesh;
-
-    public MeshFilter meshFilter;
-    public MeshRenderer meshRenderer;
-
     int totalVertexNumber;
     Dictionary<Vector3, Cube> cubeDictionary;
-    Cube[] cubes;
 
-
-    public void InitVertices()
+    public void InitVertices(Vector3 center, int numberOfVerticesPerLine, float distanceBetweenVertex, float ignoreVertexLevel, NoiseSetting noiseSetting)
     {
         totalVertexNumber = numberOfVerticesPerLine * numberOfVerticesPerLine * numberOfVerticesPerLine;
         cubeDictionary = new Dictionary<Vector3, Cube>();
@@ -31,27 +18,15 @@ public class MarchingCube
                 for (int z = 0; z < numberOfVerticesPerLine; z++)
                 {
                     int cubeIndex = x + y * numberOfVerticesPerLine + z * numberOfVerticesPerLine * numberOfVerticesPerLine;
-                    Cube cube = new Cube(new Vector3(x, y, z) * distanceBetweenVertex + centerOfMesh, distanceBetweenVertex);
+                    Cube cube = new Cube(new Vector3(x, y, z) * distanceBetweenVertex + center, distanceBetweenVertex);
                     cubeDictionary.Add(cube.origin, cube);
                     for (int i = 0; i < 8; i++)
                     {
-                        cube.vertexSelected[i] = CalculateVertexSelction(cube.origin + cube.offset[i]);
+                        CalculateVertexWeight(cube, i, ignoreVertexLevel, noiseSetting);
                     }
                 }
             }
         }
-    }
-
-    public void GenerateMesh(Transform parent)
-    {
-        InitVertices();
-
-        GameObject meshObject = new GameObject("mesh object");
-        meshObject.transform.parent = parent;
-        meshRenderer = meshObject.AddComponent<MeshRenderer>();
-        meshFilter = meshObject.AddComponent<MeshFilter>();
-        meshFilter.mesh = CalculateMesh();
-        meshRenderer.material = meshMaterial;
     }
 
     public Mesh CalculateMesh()
@@ -59,9 +34,9 @@ public class MarchingCube
         List<Vector3> vertices = new List<Vector3>();
         int[] triangles;
 
-        foreach(Cube cube in cubes)
+        foreach(KeyValuePair<Vector3, Cube> cube in cubeDictionary)
         {
-            Vector3[] verticesAtCube = cube.GetMarchingCubeVertices();
+            Vector3[] verticesAtCube = cube.Value.GetMarchingCubeVertices();
             vertices.AddRange(verticesAtCube);
         }
 
@@ -79,10 +54,18 @@ public class MarchingCube
         return mesh;
     }
 
-    public bool CalculateVertexSelction(Vector3 vertexPosition)
+    void CalculateVertexWeight(Cube cube, int index, float ignoreVertexValue,  NoiseSetting noiseSetting)
     {
-        bool selected = PerlinNoise.GenerateTerrainNoise(vertexPosition, noiseScale) < ignoreVertexValue;
-        return selected;
+        //Cube neigborCube;
+        //check there is exsiting noise value at neighbor
+        //Skip this process because we use perlin noise
+        //if(cubeDictionary.TryGetValue(new Vector3(vertexPosition.x - someOffset?, vertexPosition.y, vertexPosition.z), out neigborCube) {
+        //    ...
+        //} else if ...
+
+        float weight = Noise.GenerateTerrainNoise(cube.origin + cube.offset[index], noiseSetting);
+        cube.vertexSelected[index] = weight > ignoreVertexValue;
+        cube.vertexWeight[index] = weight;
     }
 }
 
@@ -148,7 +131,15 @@ public struct Cube
             int indexA = MarchingCubeTable.cornerIndexAFromEdge[edgeIndex];
             int indexB = MarchingCubeTable.cornerIndexBFromEdge[edgeIndex];
 
-            Vector3 vertexPosition = (offset[indexA] + offset[indexB]) / 2.0f + origin;
+            float indexAWeight = vertexWeight[indexA] + 0.01f;
+            float indexBWeight = vertexWeight[indexB] + 0.01f;
+            float weightOffset = 1 / (indexAWeight + indexBWeight);
+            indexAWeight *= weightOffset;
+            indexBWeight *= weightOffset;
+
+            Vector3 vertexPosition = offset[indexA] * indexAWeight + offset[indexB] * indexBWeight + origin;
+            //Debug.Log(weightOffset);
+            //Vector3 vertexPosition = (offset[indexA] + offset[indexB]) / 2.0f + origin;
 
             returnList.Add(vertexPosition);
         }
