@@ -11,7 +11,7 @@ public class PreviewMarchingCube : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Cube cube = new Cube(Vector3.zero, 1);
+        MarchingCube cube = new MarchingCube(Vector3.zero, 1);
        
         for(int i =0; i< 8;i++)
         {
@@ -33,7 +33,7 @@ public class PreviewMarchingCube : MonoBehaviour
         DrawMarchingCube(cube);
     }
 
-    void DrawMarchingCube(Cube cube)
+    void DrawMarchingCube(MarchingCube cube)
     {
         Gizmos.color = Color.white;
         for (int i = 0; i < 8; i++)

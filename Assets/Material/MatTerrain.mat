@@ -8,11 +8,11 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: MatTerrain
-  m_Shader: {fileID: 4800000, guid: 1f53b2e079258874d987bc2948630b78, type: 3}
-  m_ShaderKeywords: _DETAILSOURCE_SPECULARALPHA _EMISSION _PROJECTION_UVPROJECTION
-    _SOURCE_SPECULARALPHA _TRIPLANARSPACEPROJECTION_OBJECTSPACE _USEAOFROMMAINPROPERTIES_ON
-    _USEEMISSIONFROMMAINPROPERTIES_ON
-  m_LightmapFlags: 2
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: _CHANNELSELECTED_RED _CHANNELSELECTIONMASK_RED _DETAILSOURCE_SPECULARALPHA
+    _PROJECTION_UVPROJECTION _SOURCE_SPECULARALPHA _TRIPLANARSPACEPROJECTION_OBJECTSPACE
+    _USEAOFROMMAINPROPERTIES_ON _USEEMISSIONFROMMAINPROPERTIES_ON
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -57,6 +57,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NormalTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -87,6 +91,8 @@ Material:
     - _CameraFadingEnabled: 0
     - _CameraFarFadeDistance: 2
     - _CameraNearFadeDistance: 1
+    - _ChannelSelected: 0
+    - _ChannelSelectionMask: 0
     - _ColorMode: 0
     - _ContrastDetailMap: 0
     - _Cull: 0
@@ -109,6 +115,7 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 1
+    - _IntensityCutoutMap: 0.5
     - _IntensityMask: 1
     - _InvertABaseColor: 0
     - _InvertCutout: 0
@@ -141,12 +148,13 @@ Material:
     - __dirty: 1
     m_Colors:
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.6698113, g: 0.53395337, b: 0.53395337, a: 1}
     - _ColorAddSubDiff: {r: 0, g: 0, b: 0, a: 0}
     - _DetailColor: {r: 1, g: 1, b: 1, a: 0}
     - _DetailSpecularColor: {r: 1, g: 1, b: 1, a: 0}
     - _EmissionColor: {r: 0.9245283, g: 0.9245283, b: 0.9245283, a: 1}
     - _GlobalXYTilingXYZWOffsetXY: {r: 1, g: 1, b: 0, a: 0}
+    - _MainTint: {r: 0, g: 1, b: 0, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 0}
     - _TriplanarXYTilingXYZWOffsetXY: {r: 1, g: 1, b: 0, a: 0}

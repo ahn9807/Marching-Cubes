@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(MarchingCubeChunk))]
+[CustomEditor(typeof(MarchingCubeGenerator))]
 public class MarchingCubeChunkEditor : Editor
 {
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
-        MarchingCubeChunk marchingCubeChunk = (MarchingCubeChunk)target;
+        MarchingCubeGenerator marchingCubeChunk = (MarchingCubeGenerator)target;
 
         if(GUILayout.Button("Generate"))
         {
-            marchingCubeChunk.GenerateChunks();
+            marchingCubeChunk.GenerateChunks(Vector3.zero);
         }
         if(GUILayout.Button("Delete Mesh"))
         {
