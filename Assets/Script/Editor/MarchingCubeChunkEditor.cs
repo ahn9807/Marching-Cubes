@@ -13,6 +13,7 @@ public class MarchingCubeChunkEditor : Editor
 
         if(GUILayout.Button("Generate"))
         {
+            marchingCubeChunk.Initialize();
             marchingCubeChunk.GenerateChunks(Vector3.zero);
         }
         if(GUILayout.Button("Delete Mesh"))
