@@ -52,31 +52,6 @@ public static class MarchingCubeChunk
         return triangles;
     }
 
-    //public GameObject GenerateChunk(Transform parent, Vector3 center, MarchinCubeChunkSettings settings, NoiseSetting noiseSetting)
-    //{
-    //    //ThreadStart threadStart = delegate
-    //    //{
-    //    //    ThreadInitVertices(center, numberOfVerticesPerLine, distanceBetweenVertex, ignoreVertexLevel, mapMinHeight, mapMaxHeight, noiseSetting);
-    //    //};
-
-    //    //new Thread(threadStart).Start();
-
-    //    this.InitVertices(center, settings, noiseSetting);
-    //    GameObject marchingCubeParentObject = new GameObject();
-    //    marchingCubeParentObject.name = "marching cube parent " + center;
-    //    marchingCubeParentObject.transform.parent = parent;
-    //    MeshFilter meshFilter = marchingCubeParentObject.AddComponent<MeshFilter>();
-    //    MeshRenderer meshRenderer = marchingCubeParentObject.AddComponent<MeshRenderer>();
-    //    MeshCollider meshCollider = marchingCubeParentObject.AddComponent<MeshCollider>();
-
-    //    meshRenderer.material = settings.terrainMaterial;
-    //    Mesh mesh = GenerateMesh();
-    //    meshFilter.mesh = mesh;
-    //    meshCollider.sharedMesh = mesh;
-
-    //    return marchingCubeParentObject;
-    //}
-
     static void CalculateVertexWeight(MarchingCube cube, int index, MarchinCubeChunkSettings marchinCubeChunkSettings, NoiseSetting noiseSetting)
     {
         //Cube neigborCube;
@@ -86,12 +61,13 @@ public static class MarchingCubeChunk
         //    ...
         //} else if ...
 
+        //For threading, we have to dupulicate Animation Curve
         AnimationCurve heightCurve = new AnimationCurve(marchinCubeChunkSettings.heightCurve.keys);
+
         float height = cube.origin.y + cube.offset[index].y;
         float height01 = Mathf.Lerp(1, 0, (marchinCubeChunkSettings.mapMaxHeight - height) / (marchinCubeChunkSettings.mapMaxHeight - marchinCubeChunkSettings.mapMinHeight));
-        
         float weight = Noise.GenerateTerrainNoise(cube.origin + cube.offset[index], noiseSetting) * heightCurve.Evaluate(height01);
-        //Debug.Log(height01);
+
         if (height < marchinCubeChunkSettings.mapMinHeight + cube.offsetDistance)
         {
             weight = 1;

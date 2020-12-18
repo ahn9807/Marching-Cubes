@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEditor;
 
 [CustomEditor(typeof(MarchingCubeGenerator))]
-public class MarchingCubeChunkEditor : Editor
+public class MarchingCubeGeneratorEditor : Editor
 {
     public override void OnInspectorGUI()
     {
@@ -14,7 +14,7 @@ public class MarchingCubeChunkEditor : Editor
         if(GUILayout.Button("Generate"))
         {
             marchingCubeChunk.Initialize();
-            marchingCubeChunk.GenerateChunks(Vector3.zero);
+            marchingCubeChunk.GenerateChunksAtMain(Vector3.zero);
         }
         if(GUILayout.Button("Delete Mesh"))
         {

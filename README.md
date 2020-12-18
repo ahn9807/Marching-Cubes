@@ -5,10 +5,10 @@
 ![](http://emal.iptime.org/nextcloud/index.php/s/N66weAwSTfw3n8f/preview)
 
 ## To Do
-1. Threading
+1. Threading // about to do!
 2. Texture
 3. Fix Symmetric Issue of Noise
 4. Imporve Noise quality
 5. Add game like features
 6. Terrain or Biome
-7. Maybe think later ^^
+7. Memory and resouce management (At now, it takes about 10GB!!)

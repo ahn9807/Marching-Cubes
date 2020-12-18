@@ -20,11 +20,12 @@ public class MarchingCubeGenerator : MonoBehaviour
     private void Start()
     {
         Initialize();
+        GenerateChunksAtThread(playerTransform.position);
     }
 
     private void Update()
     {
-        GenerateChunks(playerTransform.position);
+        GenerateChunksAtThread(playerTransform.position);
 
         if(meshDataThreadInfoQueue.Count > 0)
         {
@@ -51,7 +52,8 @@ public class MarchingCubeGenerator : MonoBehaviour
         marchinCubeChunkSettings.mapMinHeight = mapMinHeight;
     }
 
-    public void GenerateChunks(Vector3 center)
+    //This method is INTENDED TO MAKE CHUNK AT EDITOR, EXTERAMLY SLOW AT IN GAME
+    public void GenerateChunksAtMain(Vector3 center)
     {
         if (marchingCubeChunkDictionary == null)
         {
@@ -73,20 +75,59 @@ public class MarchingCubeGenerator : MonoBehaviour
                     offset.y = 0;
                     offset.z = Mathf.RoundToInt(center.z / meshDistance) * meshDistance;
                     Vector3 centerOfMarchingCube = new Vector3(x, y, z) * meshDistance + offset;
-                    if (!marchingCubeChunkDictionary.ContainsKey(centerOfMarchingCube)) { 
-                        GameObject marchingCubeParentObject = new GameObject();
-                        marchingCubeParentObject.name = "marching cube parent " + center;
-                        marchingCubeParentObject.transform.parent = this.transform;
-                        MeshFilter meshFilter = marchingCubeParentObject.AddComponent<MeshFilter>();
-                        MeshRenderer meshRenderer = marchingCubeParentObject.AddComponent<MeshRenderer>();
-                        MeshCollider meshCollider = marchingCubeParentObject.AddComponent<MeshCollider>();
-                        meshRenderer.material = marchinCubeChunkSettings.terrainMaterial;
+                    if (!marchingCubeChunkDictionary.ContainsKey(centerOfMarchingCube))
+                    {
+                        GameObject marchingCubeParentObject = GenerateChunkObject(centerOfMarchingCube);
+                        marchingCubeChunkDictionary.Add(centerOfMarchingCube, marchingCubeParentObject);
 
+                        //Make mesh without threading
                         MeshData meshData = new MeshData();
-                        meshData.meshFilter = meshFilter;
                         meshData.terrainObject = marchingCubeParentObject;
 
+                        meshData.cubes = MarchingCubeChunk.InitVertices(centerOfMarchingCube, marchinCubeChunkSettings, noiseSetting);
+                        meshData.vertices = MarchingCubeChunk.GenerateVertices(meshData.cubes);
+                        meshData.triangles = MarchingCubeChunk.GenerateTriangles(meshData.vertices);
+                        Mesh mesh = new Mesh();
+                        mesh.vertices = meshData.vertices;
+                        mesh.triangles = meshData.triangles;
+                        mesh.RecalculateNormals();
+                        meshData.terrainObject.GetComponent<MeshCollider>().sharedMesh = mesh;
+                        meshData.terrainObject.GetComponent<MeshFilter>().sharedMesh = mesh;
+                    }
+                }
+            }
+        }
+    }
+
+    public void GenerateChunksAtThread(Vector3 center)
+    {
+        if (marchingCubeChunkDictionary == null)
+        {
+            marchingCubeChunkDictionary = new Dictionary<Vector3, GameObject>();
+        }
+
+        int xOffset = (int)center.x;
+        int zOffset = (int)center.z;
+
+        for (int x = -(int)chunkRenderNumber.x; x <= (int)chunkRenderNumber.x; x++)
+        {
+            for (int y = -(int)chunkRenderNumber.y; y <= (int)chunkRenderNumber.y; y++)
+            {
+                for (int z = -(int)chunkRenderNumber.z; z <= (int)chunkRenderNumber.z; z++)
+                {
+                    float meshDistance = marchinCubeChunkSettings.distanceBetweenVertex * (marchinCubeChunkSettings.numberOfVerticesPerLine);
+                    Vector3 offset = new Vector3(0, 0, 0);
+                    offset.x = Mathf.RoundToInt(center.x / meshDistance) * meshDistance;
+                    offset.y = 0;
+                    offset.z = Mathf.RoundToInt(center.z / meshDistance) * meshDistance;
+                    Vector3 centerOfMarchingCube = new Vector3(x, y, z) * meshDistance + offset;
+                    if (!marchingCubeChunkDictionary.ContainsKey(centerOfMarchingCube)) {
+                        GameObject marchingCubeParentObject = GenerateChunkObject(centerOfMarchingCube);
                         marchingCubeChunkDictionary.Add(centerOfMarchingCube, marchingCubeParentObject);
+
+                        MeshData meshData = new MeshData();
+                        meshData.terrainObject = marchingCubeParentObject;
+
                         RequestMeshData(meshData, centerOfMarchingCube, marchinCubeChunkSettings, noiseSetting, MarchingCubeCallback);
                     }
                 }
@@ -94,20 +135,28 @@ public class MarchingCubeGenerator : MonoBehaviour
         }
     }
 
-    public void MarchingCubeCallback(MeshData meshData)
+    public GameObject GenerateChunkObject(Vector3 center)
     {
-        meshData.meshFilter.mesh.vertices = meshData.vertices;
-        meshData.meshFilter.mesh.triangles = meshData.triangles;
-        meshData.meshFilter.mesh.RecalculateNormals();
-        meshData.terrainObject.GetComponent<MeshCollider>().sharedMesh = meshData.meshFilter.mesh;
+        GameObject marchingCubeParentObject = new GameObject();
+        marchingCubeParentObject.name = "marching cube parent " + center;
+        marchingCubeParentObject.transform.parent = this.transform;
+        marchingCubeParentObject.AddComponent<MeshFilter>();
+        marchingCubeParentObject.AddComponent<MeshCollider>();
+
+        MeshRenderer meshRenderer = marchingCubeParentObject.AddComponent<MeshRenderer>();
+        meshRenderer.material = marchinCubeChunkSettings.terrainMaterial;
+
+        return marchingCubeParentObject;
     }
 
-    public void VerticesCallback(Vector3[] vertices)
+    public void MarchingCubeCallback(MeshData meshData)
     {
-        int[] triangles = MarchingCubeChunk.GenerateTriangles(vertices);
-        marchingCubeChunkDictionary[Vector3.zero].GetComponent<MeshFilter>().mesh.vertices = vertices;
-        marchingCubeChunkDictionary[Vector3.zero].GetComponent<MeshFilter>().mesh.triangles = triangles;
-        marchingCubeChunkDictionary[Vector3.zero].GetComponent<MeshFilter>().mesh.RecalculateNormals();
+        Mesh mesh = meshData.terrainObject.GetComponent<MeshFilter>().mesh;
+        MeshCollider meshCollider = meshData.terrainObject.GetComponent<MeshCollider>();
+        mesh.vertices = meshData.vertices;
+        mesh.triangles = meshData.triangles;
+        mesh.RecalculateNormals();
+        meshCollider.sharedMesh = mesh;
     }
 
     public void RequestMeshData(MeshData meshData, Vector3 center, MarchinCubeChunkSettings chunkSettings, NoiseSetting noiseSettings, Action<MeshData> callback)
@@ -135,20 +184,13 @@ public class MarchingCubeGenerator : MonoBehaviour
 
     public void DeleteMarchingCubeObject()
     {
-        //if (marchingCubeChunkDictionary == null)
-        //{
-        //    return;
-        //}
+        Transform[] cubes = transform.GetComponentsInChildren<Transform>();
 
-        //if (marchingCubeChunkDictionary.Count != 0)
-        //{
-        //    foreach (KeyValuePair<Vector3, GameObject> go in marchingCubeChunkDictionary)
-        //    {
-        //        DestroyImmediate(go.Value);
-        //    }
-
-        //    marchingCubeChunkDictionary.Clear();
-        //}
+        //Start from 1 to avoid self
+        for(int i=1;i<cubes.Length;i++)
+        {
+            DestroyImmediate(cubes[i].transform.gameObject);
+        }
     }
 
     struct GeneratorThreadInfo<T>
@@ -166,7 +208,6 @@ public class MarchingCubeGenerator : MonoBehaviour
     public class MeshData
     {
         public GameObject terrainObject;
-        public MeshFilter meshFilter;
         public List<MarchingCube> cubes;
         public Vector3[] vertices;
         public int[] triangles;

@@ -223,7 +223,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 614205473}
-  m_Mesh: {fileID: 952661642}
+  m_Mesh: {fileID: 820878851}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -316,7 +316,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!43 &952661642
+--- !u!43 &820878851
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -592,15 +592,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4ed8d193f56db44e3a8414dbebc727fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkRenderNumber: {x: 10, y: 2, z: 10}
+  chunkRenderNumber: {x: 1, y: 1, z: 1}
   noiseSetting:
     seed: 0
-    noiseScale: 40
+    noiseScale: 20
     octaves: 2
-    persistance: 1.05
-    lacunarity: 0.33
+    persistance: 0.9
+    lacunarity: 1
   marchinCubeChunkSettings:
-    numberOfVerticesPerLine: 1
+    numberOfVerticesPerLine: 10
     distanceBetweenVertex: 1
     ignoreVertexLevel: 0.4
     heightCurve:
@@ -747,11 +747,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 5e9e851c0e142814dac026a256ba2ac0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 100002, guid: 5e9e851c0e142814dac026a256ba2ac0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5e9e851c0e142814dac026a256ba2ac0, type: 3}
       propertyPath: m_RootOrder
