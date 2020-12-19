@@ -1,4 +1,4 @@
-Shader "Ciconia Studio/CS_Standard/Builtin/Lite/Standard (Specular setup)/Cutout"
+Shader "Custom/DoubleSidePlane"
 {
 	Properties
 	{

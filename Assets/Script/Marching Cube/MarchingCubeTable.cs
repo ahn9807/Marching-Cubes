@@ -5,7 +5,6 @@ using UnityEngine;
 public static class MarchingCubeTable
 {
     // Values from http://paulbourke.net/geometry/polygonise/
-    // Also copied from https://github.com/SebLague/Marching-Cubes/blob/master/Assets/Scripts/Compute/Includes/MarchTables.compute
 
     public static int[] edges = new int[256] {
     0x0,

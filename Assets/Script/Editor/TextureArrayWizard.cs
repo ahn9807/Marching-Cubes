@@ -5,9 +5,9 @@ using UnityEditor;
 
 public class TextureArrayWizard : ScriptableWizard
 {
-    public Texture2D[] textures;
+    public MarchingCubeBiome biomeAsset;
 
-    [MenuItem("Asset/Create/Texture Array")]
+    [MenuItem("Marching Cube/Create/Texture Array")]
     static void CreateWizard()
     {
         ScriptableWizard.DisplayWizard<TextureArrayWizard>("Create Texture Array", "Create");
@@ -15,6 +15,12 @@ public class TextureArrayWizard : ScriptableWizard
 
     private void OnWizardCreate()
     {
+        Texture2D[] textures = new Texture2D[biomeAsset.biomes.Length];
+        for(int i=0;i<textures.Length;i++)
+        {
+            textures[i] = biomeAsset.biomes[i].texture;
+        }
+
         if (textures.Length == 0)
         {
             return;
@@ -28,20 +34,17 @@ public class TextureArrayWizard : ScriptableWizard
         }
 
         Texture2D t = textures[0];
-        Texture2DArray textureArray = new Texture2DArray(t.width, t.height, textures.Length, t.format, false);
+        Texture2DArray textureArray = new Texture2DArray(t.width, t.height, textures.Length, t.format, t.mipmapCount > 1);
         textureArray.anisoLevel = t.anisoLevel;
         textureArray.filterMode = t.filterMode;
         textureArray.wrapMode = t.wrapMode;
 
         for (int i = 0; i < textures.Length; i++)
         {
-            Texture2D scaledTexture = new Texture2D(t.width, t.height, TextureFormat.ARGB32, false);
-            Graphics.ConvertTexture(textures[i], scaledTexture);
-            Graphics.ConvertTexture(scaledTexture, 0, textureArray, i);
-            //for (int m = 0; m < t.mipmapCount; m++)
-            //{
-            //    Graphics.CopyTexture(scaledTexture, 0, m, textureArray, i, m);
-            //}
+            for (int m = 0; m < t.mipmapCount; m++)
+            {
+                Graphics.CopyTexture(textures[i], 0, m, textureArray, i, m);
+            }
         }
 
         AssetDatabase.CreateAsset(textureArray, path);

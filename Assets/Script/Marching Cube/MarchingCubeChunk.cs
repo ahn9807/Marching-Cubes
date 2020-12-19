@@ -86,14 +86,24 @@ public class MarchinCubeChunkSettings
     public int numberOfVerticesPerLine;
     public float distanceBetweenVertex;
     public float ignoreVertexLevel;
-    [System.NonSerialized]
-    public float mapMinHeight;
-    [System.NonSerialized]
-    public float mapMaxHeight;
+    public Vector3 chunkRenderNumber;
     public AnimationCurve heightCurve;
     [System.NonSerialized]
     public Transform parent;
     public Material terrainMaterial;
+
+    public float mapMinHeight
+    {
+        get
+        {
+            return -chunkRenderNumber.y * numberOfVerticesPerLine * distanceBetweenVertex;
+        }
+    }
+    public float mapMaxHeight
+    {
+        get
+        {
+            return chunkRenderNumber.y * numberOfVerticesPerLine * distanceBetweenVertex;
+        }
+    }
 }
-
-

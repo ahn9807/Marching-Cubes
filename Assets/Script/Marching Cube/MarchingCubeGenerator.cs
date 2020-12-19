@@ -6,10 +6,9 @@ using System;
 
 public class MarchingCubeGenerator : MonoBehaviour
 {
-    public Vector3 chunkRenderNumber;
-
     public NoiseSetting noiseSetting;
-    public MarchinCubeChunkSettings marchinCubeChunkSettings;
+    public MarchinCubeChunkSettings chunkSetting;
+    public MarchingCubeBiome biomeSetting;
 
     public Transform playerTransform;
 
@@ -41,15 +40,10 @@ public class MarchingCubeGenerator : MonoBehaviour
     {
         DeleteMarchingCubeObject();
 
-        float mapMinHeight = -chunkRenderNumber.y * marchinCubeChunkSettings.numberOfVerticesPerLine * marchinCubeChunkSettings.distanceBetweenVertex;
-        float mapMaxHeight = chunkRenderNumber.y * marchinCubeChunkSettings.numberOfVerticesPerLine * marchinCubeChunkSettings.distanceBetweenVertex;
-
         marchingCubeChunkDictionary = new Dictionary<Vector3, GameObject>();
         marchingCubeChunkDictionary.Clear();
 
-        marchinCubeChunkSettings.parent = this.transform;
-        marchinCubeChunkSettings.mapMaxHeight = mapMaxHeight;
-        marchinCubeChunkSettings.mapMinHeight = mapMinHeight;
+        chunkSetting.parent = this.transform;
     }
 
     //This method is INTENDED TO MAKE CHUNK AT EDITOR, EXTERAMLY SLOW AT IN GAME
@@ -63,13 +57,13 @@ public class MarchingCubeGenerator : MonoBehaviour
         int xOffset = (int)center.x;
         int zOffset = (int)center.z;
 
-        for (int x = -(int)chunkRenderNumber.x; x <= (int)chunkRenderNumber.x; x++)
+        for (int x = -(int)chunkSetting.chunkRenderNumber.x; x <= (int)chunkSetting.chunkRenderNumber.x; x++)
         {
-            for (int y = -(int)chunkRenderNumber.y; y <= (int)chunkRenderNumber.y; y++)
+            for (int y = -(int)chunkSetting.chunkRenderNumber.y; y <= (int)chunkSetting.chunkRenderNumber.y; y++)
             {
-                for (int z = -(int)chunkRenderNumber.z; z <= (int)chunkRenderNumber.z; z++)
+                for (int z = -(int)chunkSetting.chunkRenderNumber.z; z <= (int)chunkSetting.chunkRenderNumber.z; z++)
                 {
-                    float meshDistance = marchinCubeChunkSettings.distanceBetweenVertex * (marchinCubeChunkSettings.numberOfVerticesPerLine);
+                    float meshDistance = chunkSetting.distanceBetweenVertex * (chunkSetting.numberOfVerticesPerLine);
                     Vector3 offset = new Vector3(0, 0, 0);
                     offset.x = Mathf.RoundToInt(center.x / meshDistance) * meshDistance;
                     offset.y = 0;
@@ -84,12 +78,13 @@ public class MarchingCubeGenerator : MonoBehaviour
                         MeshData meshData = new MeshData();
                         meshData.terrainObject = marchingCubeParentObject;
 
-                        meshData.cubes = MarchingCubeChunk.InitVertices(centerOfMarchingCube, marchinCubeChunkSettings, noiseSetting);
+                        meshData.cubes = MarchingCubeChunk.InitVertices(centerOfMarchingCube, chunkSetting, noiseSetting);
                         meshData.vertices = MarchingCubeChunk.GenerateVertices(meshData.cubes);
                         meshData.triangles = MarchingCubeChunk.GenerateTriangles(meshData.vertices);
                         Mesh mesh = new Mesh();
                         mesh.vertices = meshData.vertices;
                         mesh.triangles = meshData.triangles;
+                        mesh.SetUVs(2, biomeSetting.GenerateUVS(chunkSetting, meshData.vertices));
                         mesh.RecalculateNormals();
                         meshData.terrainObject.GetComponent<MeshCollider>().sharedMesh = mesh;
                         meshData.terrainObject.GetComponent<MeshFilter>().sharedMesh = mesh;
@@ -109,13 +104,13 @@ public class MarchingCubeGenerator : MonoBehaviour
         int xOffset = (int)center.x;
         int zOffset = (int)center.z;
 
-        for (int x = -(int)chunkRenderNumber.x; x <= (int)chunkRenderNumber.x; x++)
+        for (int x = -(int)chunkSetting.chunkRenderNumber.x; x <= (int)chunkSetting.chunkRenderNumber.x; x++)
         {
-            for (int y = -(int)chunkRenderNumber.y; y <= (int)chunkRenderNumber.y; y++)
+            for (int y = -(int)chunkSetting.chunkRenderNumber.y; y <= (int)chunkSetting.chunkRenderNumber.y; y++)
             {
-                for (int z = -(int)chunkRenderNumber.z; z <= (int)chunkRenderNumber.z; z++)
+                for (int z = -(int)chunkSetting.chunkRenderNumber.z; z <= (int)chunkSetting.chunkRenderNumber.z; z++)
                 {
-                    float meshDistance = marchinCubeChunkSettings.distanceBetweenVertex * (marchinCubeChunkSettings.numberOfVerticesPerLine);
+                    float meshDistance = chunkSetting.distanceBetweenVertex * (chunkSetting.numberOfVerticesPerLine);
                     Vector3 offset = new Vector3(0, 0, 0);
                     offset.x = Mathf.RoundToInt(center.x / meshDistance) * meshDistance;
                     offset.y = 0;
@@ -128,7 +123,7 @@ public class MarchingCubeGenerator : MonoBehaviour
                         MeshData meshData = new MeshData();
                         meshData.terrainObject = marchingCubeParentObject;
 
-                        RequestMeshData(meshData, centerOfMarchingCube, marchinCubeChunkSettings, noiseSetting, MarchingCubeCallback);
+                        RequestMeshData(meshData, centerOfMarchingCube, chunkSetting, noiseSetting, MarchingCubeCallback);
                     }
                 }
             }
@@ -144,19 +139,14 @@ public class MarchingCubeGenerator : MonoBehaviour
         marchingCubeParentObject.AddComponent<MeshCollider>();
 
         MeshRenderer meshRenderer = marchingCubeParentObject.AddComponent<MeshRenderer>();
-        meshRenderer.material = marchinCubeChunkSettings.terrainMaterial;
+        meshRenderer.material = chunkSetting.terrainMaterial;
 
         return marchingCubeParentObject;
     }
 
     public void MarchingCubeCallback(MeshData meshData)
     {
-        Mesh mesh = meshData.terrainObject.GetComponent<MeshFilter>().mesh;
-        MeshCollider meshCollider = meshData.terrainObject.GetComponent<MeshCollider>();
-        mesh.vertices = meshData.vertices;
-        mesh.triangles = meshData.triangles;
-        mesh.RecalculateNormals();
-        meshCollider.sharedMesh = mesh;
+        meshData.SetMesh();
     }
 
     public void RequestMeshData(MeshData meshData, Vector3 center, MarchinCubeChunkSettings chunkSettings, NoiseSetting noiseSettings, Action<MeshData> callback)
@@ -175,6 +165,7 @@ public class MarchingCubeGenerator : MonoBehaviour
         meshData.cubes = cubes;
         meshData.vertices = vertices;
         meshData.triangles = MarchingCubeChunk.GenerateTriangles(vertices);
+        meshData.uvs = biomeSetting.GenerateUVS(chunkSetting, vertices);
 
         lock(meshDataThreadInfoQueue)
         {
@@ -211,5 +202,17 @@ public class MarchingCubeGenerator : MonoBehaviour
         public List<MarchingCube> cubes;
         public Vector3[] vertices;
         public int[] triangles;
+        public Vector2[] uvs;
+
+        public void SetMesh()
+        {
+            var mesh = terrainObject.GetComponent<MeshFilter>();
+            var meshCollider = terrainObject.GetComponent<MeshCollider>();
+            mesh.mesh.vertices = this.vertices;
+            mesh.mesh.triangles = this.triangles;
+            mesh.mesh.SetUVs(2, uvs);
+            meshCollider.sharedMesh = mesh.mesh;
+            mesh.mesh.RecalculateNormals();
+        }
     }
 }
