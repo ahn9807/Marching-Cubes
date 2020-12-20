@@ -9,7 +9,7 @@ Marching cube algorithm is a long-established algorithm introduced in SIGGRAPH i
 |![](http://emal.iptime.org/nextcloud/index.php/s/sQg7yJ4A55Qpkco/preview) | ![](https://www.researchgate.net/profile/Zhongjie_Long/publication/282209849/figure/fig2/AS:362916613246979@1463537471898/Type-of-surface-combinations-for-the-marching-cube-algorithm-The-black-circles-means.png)|![](http://emal.iptime.org/nextcloud/index.php/s/3i99KEAnMdpMjsZ/preview)|
 ### Before Implement Texture and threading...
 ![](http://emal.iptime.org/nextcloud/index.php/s/N66weAwSTfw3n8f/preview)
-### After Implement Texture and thrading!!
+### After Implement Texture and threading!!
 ![](http://emal.iptime.org/nextcloud/index.php/s/mq2oaSmQcpspM77/preview)
 
 ## To Do
