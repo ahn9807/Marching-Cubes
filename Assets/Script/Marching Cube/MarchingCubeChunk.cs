@@ -66,7 +66,7 @@ public static class MarchingCubeChunk
 
         float height = cube.origin.y + cube.offset[index].y;
         float height01 = Mathf.Lerp(1, 0, (marchinCubeChunkSettings.mapMaxHeight - height) / (marchinCubeChunkSettings.mapMaxHeight - marchinCubeChunkSettings.mapMinHeight));
-        float weight = Noise.GenerateTerrainNoise(cube.origin + cube.offset[index], noiseSetting) * heightCurve.Evaluate(height01);
+        float weight = MarchingCubeNoise.GenerateTerrainNoise(cube.origin + cube.offset[index], noiseSetting) * heightCurve.Evaluate(height01);
 
         if (height < marchinCubeChunkSettings.mapMinHeight + cube.offsetDistance)
         {

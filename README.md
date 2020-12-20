@@ -15,7 +15,7 @@ Marching cube algorithm is a long-established algorithm introduced in SIGGRAPH i
 ## To Do
 - [x] Threading - Need to modify little
 - [x] Texturing - Is there any way to simplify textuing processes?
-- [ ] Fix Noise (Symmetric Issue)
+- [x] Fix Noise (Symmetric Issue)
 - [ ] Improve Noise quality
 - [ ] Biome
 - [ ] Add game like features
