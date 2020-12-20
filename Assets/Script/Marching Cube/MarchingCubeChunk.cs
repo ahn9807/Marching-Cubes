@@ -6,7 +6,7 @@ using System.Threading;
 
 public static class MarchingCubeChunk
 {
-    public static List<MarchingCube> InitVertices(Vector3 center, MarchinCubeChunkSettings marchingCubeChunksettings, NoiseSetting noiseSetting)
+    public static List<MarchingCube> InitVertices(Vector3 center, MarchingCubeChunkSetting marchingCubeChunksettings, NoiseSetting noiseSetting)
     {
         List<MarchingCube> cubeList = new List<MarchingCube>();
         for (int x = 0; x < marchingCubeChunksettings.numberOfVerticesPerLine; x++)
@@ -52,7 +52,7 @@ public static class MarchingCubeChunk
         return triangles;
     }
 
-    static void CalculateVertexWeight(MarchingCube cube, int index, MarchinCubeChunkSettings marchinCubeChunkSettings, NoiseSetting noiseSetting)
+    static void CalculateVertexWeight(MarchingCube cube, int index, MarchingCubeChunkSetting marchingCubeSetting, NoiseSetting noiseSetting)
     {
         //Cube neigborCube;
         //check there is exsiting noise value at neighbor
@@ -62,32 +62,33 @@ public static class MarchingCubeChunk
         //} else if ...
 
         //For threading, we have to dupulicate Animation Curve
-        AnimationCurve heightCurve = new AnimationCurve(marchinCubeChunkSettings.heightCurve.keys);
+        AnimationCurve weightCurve = new AnimationCurve(marchingCubeSetting.weightCurve.keys);
 
         float height = cube.origin.y + cube.offset[index].y;
-        float height01 = Mathf.Lerp(1, 0, (marchinCubeChunkSettings.mapMaxHeight - height) / (marchinCubeChunkSettings.mapMaxHeight - marchinCubeChunkSettings.mapMinHeight));
-        float weight = MarchingCubeNoise.GenerateTerrainNoise(cube.origin + cube.offset[index], noiseSetting) * heightCurve.Evaluate(height01);
+        float height01 = Mathf.Lerp(1, 0, (marchingCubeSetting.mapMaxHeight - height) / (marchingCubeSetting.mapMaxHeight - marchingCubeSetting.mapMinHeight));
+        float weight = MarchingCubeNoise.GenerateTerrainNoise(cube.origin + cube.offset[index], noiseSetting) * weightCurve.Evaluate(height01);
 
-        if (height < marchinCubeChunkSettings.mapMinHeight + cube.offsetDistance)
+        if (height < marchingCubeSetting.mapMinHeight + cube.offsetDistance)
         {
             weight = 1;
-        } else if(height > marchinCubeChunkSettings.mapMaxHeight - cube.offsetDistance)
+        } else if(height > marchingCubeSetting.mapMaxHeight - cube.offsetDistance)
         {
             weight = 0;
         }
-        cube.vertexSelected[index] = weight < marchinCubeChunkSettings.ignoreVertexLevel;
+        cube.vertexSelected[index] = weight < marchingCubeSetting.ignoreVertexLevel;
         cube.vertexWeight[index] = weight;
     }
 }
 
 [System.Serializable]
-public class MarchinCubeChunkSettings
+public class MarchingCubeChunkSetting
 {
     public int numberOfVerticesPerLine;
     public float distanceBetweenVertex;
+    [Range(0,1)]
     public float ignoreVertexLevel;
     public Vector3 chunkRenderNumber;
-    public AnimationCurve heightCurve;
+    public AnimationCurve weightCurve;
     [System.NonSerialized]
     public Transform parent;
     public Material terrainMaterial;

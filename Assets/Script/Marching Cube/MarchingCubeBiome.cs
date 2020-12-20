@@ -6,7 +6,7 @@ public class MarchingCubeBiome : ScriptableObject
 {
     public Biome[] biomes;
 
-    public Vector2[] GenerateUVS(MarchinCubeChunkSettings settings, Vector3[] vertices)
+    public Vector2[] GenerateUVS(MarchingCubeChunkSetting settings, Vector3[] vertices)
     {
         Vector2[] returnUVS = new Vector2[vertices.Length];
 

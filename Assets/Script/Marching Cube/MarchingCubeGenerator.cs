@@ -7,7 +7,7 @@ using System;
 public class MarchingCubeGenerator : MonoBehaviour
 {
     public NoiseSetting noiseSetting;
-    public MarchinCubeChunkSettings chunkSetting;
+    public MarchingCubeChunkSetting chunkSetting;
     public MarchingCubeBiome biomeSetting;
 
     public Transform playerTransform;
@@ -81,9 +81,11 @@ public class MarchingCubeGenerator : MonoBehaviour
                         meshData.cubes = MarchingCubeChunk.InitVertices(centerOfMarchingCube, chunkSetting, noiseSetting);
                         meshData.vertices = MarchingCubeChunk.GenerateVertices(meshData.cubes);
                         meshData.triangles = MarchingCubeChunk.GenerateTriangles(meshData.vertices);
-                        Mesh mesh = new Mesh();
-                        mesh.vertices = meshData.vertices;
-                        mesh.triangles = meshData.triangles;
+                        Mesh mesh = new Mesh
+                        {
+                            vertices = meshData.vertices,
+                            triangles = meshData.triangles
+                        };
                         mesh.SetUVs(2, biomeSetting.GenerateUVS(chunkSetting, meshData.vertices));
                         mesh.RecalculateNormals();
                         meshData.terrainObject.GetComponent<MeshCollider>().sharedMesh = mesh;
@@ -149,7 +151,7 @@ public class MarchingCubeGenerator : MonoBehaviour
         meshData.SetMesh();
     }
 
-    public void RequestMeshData(MeshData meshData, Vector3 center, MarchinCubeChunkSettings chunkSettings, NoiseSetting noiseSettings, Action<MeshData> callback)
+    public void RequestMeshData(MeshData meshData, Vector3 center, MarchingCubeChunkSetting chunkSettings, NoiseSetting noiseSettings, Action<MeshData> callback)
     {
         ThreadStart threadStart = delegate {
             ThreadMeshData(meshData, center, chunkSettings, noiseSettings, callback);
@@ -158,14 +160,14 @@ public class MarchingCubeGenerator : MonoBehaviour
         new Thread(threadStart).Start();
     }
 
-    void ThreadMeshData(MeshData meshData, Vector3 center, MarchinCubeChunkSettings chunkSettings, NoiseSetting noiseSettings, Action<MeshData> callback)
+    void ThreadMeshData(MeshData meshData, Vector3 center, MarchingCubeChunkSetting chunkSetting, NoiseSetting noiseSetting, Action<MeshData> callback)
     {
-        List<MarchingCube> cubes = MarchingCubeChunk.InitVertices(center, chunkSettings, noiseSettings);
+        List<MarchingCube> cubes = MarchingCubeChunk.InitVertices(center, chunkSetting, noiseSetting);
         Vector3[] vertices = MarchingCubeChunk.GenerateVertices(cubes);
         meshData.cubes = cubes;
         meshData.vertices = vertices;
         meshData.triangles = MarchingCubeChunk.GenerateTriangles(vertices);
-        meshData.uvs = biomeSetting.GenerateUVS(chunkSetting, vertices);
+        meshData.uvs = biomeSetting.GenerateUVS(this.chunkSetting, vertices);
 
         lock(meshDataThreadInfoQueue)
         {

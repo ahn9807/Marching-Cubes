@@ -24,6 +24,7 @@
         struct Input
         {
             float4 color : COLOR;
+            float3 worldNormal;
             float3 worldPos;
             float3 normalPos;
             float3 terrain;
@@ -45,17 +46,19 @@
             data.terrain = v.texcoord2.xyz;
         }
 
-        float4 GetTerrainColor (Input IN, float scale) {
-            float3 scaledWordPos = IN.worldPos / 50;
-			float4 c_xy = UNITY_SAMPLE_TEX2DARRAY(_MainTexArray, float3(scaledWordPos.x, scaledWordPos.y, IN.terrain[0]));
-		    float4 c_xz = UNITY_SAMPLE_TEX2DARRAY(_MainTexArray, float3(scaledWordPos.x, scaledWordPos.z, IN.terrain[0]));
-		    float4 c_yz = UNITY_SAMPLE_TEX2DARRAY(_MainTexArray, float3(scaledWordPos.y, scaledWordPos.z, IN.terrain[0]));
-            return (c_xy + c_xz + c_yz) / 3;
+        float4 GetTerrainColor (Input IN, float scale, float3 blendAxes) {
+            float3 scaledWordPos = IN.worldPos / 20;
+			float4 proj_x = UNITY_SAMPLE_TEX2DARRAY(_MainTexArray, float3(scaledWordPos.y, scaledWordPos.z, IN.terrain[0])) * blendAxes.x;
+		    float4 proj_y = UNITY_SAMPLE_TEX2DARRAY(_MainTexArray, float3(scaledWordPos.x, scaledWordPos.z, IN.terrain[0])) * blendAxes.y;
+		    float4 proj_z = UNITY_SAMPLE_TEX2DARRAY(_MainTexArray, float3(scaledWordPos.x, scaledWordPos.y, IN.terrain[0])) * blendAxes.z;
+            return (proj_x + proj_y + proj_z);
 		} 
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-            fixed4 c = GetTerrainColor(IN, IN.terrain[1]);
+            float3 blendAxes = abs(IN.worldNormal);
+			blendAxes /= blendAxes.x + blendAxes.y + blendAxes.z;
+            fixed4 c = GetTerrainColor(IN, IN.terrain[1], blendAxes);
 			o.Albedo = c.rgb * _Color;
 			o.Metallic = _Metallic;
 			o.Smoothness = _Glossiness;
