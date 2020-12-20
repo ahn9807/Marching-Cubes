@@ -24,7 +24,7 @@ Marching cube algorithm is a long-established algorithm introduced in SIGGRAPH i
 - [ ] Biome - Height map texture is boring.
 - [ ] Memory and resource management - Currently all the chunks are loaded as gameobject. 
 
-## Refereces
+## References
 1. https://www.youtube.com/watch?v=M3iI2l0ltbE&t=4s
 2. https://catlikecoding.com/unity/tutorials/hex-map
 3. http://paulbourke.net/geometry/polygonise/
